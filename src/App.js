@@ -1,24 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import { useContext, useEffect } from "react";
+import { Context } from "./context";
+import Layout from "./components/Layout";
+import Card from "./components/Card";
+
+import "./App.css";
 
 function App() {
+  const { state, read } = useContext(Context);
+
+  // const count = useMemo(() => {
+  //   return `you have ${state.items.length} image${
+  //     state.items.length > 1 ? "s" : ""
+  //   }`;
+  // }, [state.items]);
+
+  const count = `you have ${state.items.length} image${
+    state.items.length > 1 ? "s" : ""
+  }`;
+
+  useEffect(() => {
+    read().then(console.log);
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout>
+      <h1 className="text-center">Gallery</h1>
+      {count}
+      <div className="row">
+        {state.items.map((item, index) => {
+          return <Card {...item} key={index} />;
+        })}
+      </div>
+    </Layout>
   );
 }
 
