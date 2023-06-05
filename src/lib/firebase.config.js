@@ -4,6 +4,7 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -14,8 +15,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_APP_ID,
 };
-
-console.log("api key:" + process.env.REACT_APP_API_KEY);
 
 //Initialize Firebase
 const app = () => {
@@ -35,5 +34,7 @@ app();
 
 export const db = getFirestore(app);
 export const storage = getStorage();
+// Initialize Firebase Authentication and get a reference to the service
+export const auth = getAuth();
 
 export default app;

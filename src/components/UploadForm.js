@@ -1,7 +1,8 @@
 import { useMemo, useContext } from "react";
-import { Context } from "../context";
+import { Context } from "../context/FirestoreContext";
 import FireStore from "../handlers/firestore";
 import Storage from "../handlers/storage";
+import { useAuthContext } from "../context/AuthContext";
 
 const { writeDoc } = FireStore;
 const { uploadFile, downloadFile } = Storage;
@@ -26,7 +27,11 @@ const Preview = () => {
 };
 
 const UploadForm = ({ inputs }) => {
-  const { state, dispatch } = useContext(Context);
+  const { state, dispatch, read } = useContext(Context);
+  const { currentUser } = useAuthContext();
+
+  const username = currentUser?.displayName.split(" ").join("");
+
   const isDisabled = useMemo(() => {
     return !!Object.values(state.inputs).some((input) => !input);
   }, [state.inputs]);
@@ -39,9 +44,18 @@ const UploadForm = ({ inputs }) => {
     uploadFile(state.inputs)
       .then(downloadFile)
       .then((url) => {
-        writeDoc({ ...inputs, path: url }, "stocks").then(() => {
-          dispatch({ type: "setItem" });
+        writeDoc(
+          {
+            ...inputs,
+            path: url,
+            username: username.toLowerCase(),
+            useremail: currentUser.email,
+          },
+          "stocks"
+        ).then(() => {
+          read();
           dispatch({ type: "collapse", payload: { bool: false } });
+          dispatch({ type: "setItem" });
         });
       });
   };

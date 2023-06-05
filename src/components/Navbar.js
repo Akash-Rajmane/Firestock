@@ -1,25 +1,95 @@
-import React from "react";
+import React, { useMemo, useState, useContext } from "react";
+import { useAuthContext } from "../context/AuthContext";
+import { Link, useLocation } from "react-router-dom";
+import { Context } from "../context/FirestoreContext";
+
+const LogIn = () => {
+  const { logIn, currentUser } = useAuthContext();
+  return (
+    !currentUser && (
+      <button type="button" className="btn btn-warning" onClick={logIn}>
+        Login
+      </button>
+    )
+  );
+};
+
+const LogOut = () => {
+  const { logOut, currentUser } = useAuthContext();
+  return (
+    !!currentUser && (
+      <button type="button" className="btn btn-danger" onClick={logOut}>
+        Logout
+      </button>
+    )
+  );
+};
 
 function Navigation() {
+  const { currentUser } = useAuthContext();
+  const { pathname } = useLocation();
+
   return (
     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
       <li className="nav-item">
-        <a className="nav-link active" aria-current="page" href="#a">
+        <Link
+          className={`nav-link ${pathname === "/" ? "active" : ""} `}
+          aria-current="page"
+          to="/"
+        >
           Home
-        </a>
+        </Link>
       </li>
+      {currentUser && (
+        <li className="nav-item">
+          <Link
+            className={`nav-link ${
+              pathname === "/stockimages" ? "active" : ""
+            } `}
+            aria-current="page"
+            to="/stockimages"
+          >
+            My Stock Images
+          </Link>
+        </li>
+      )}
+      {currentUser && (
+        <li className="nav-item">
+          <Link
+            className={`nav-link ${pathname === "/profile" ? "active" : ""}`}
+            aria-current="page"
+            to="/profile"
+          >
+            Profile
+          </Link>
+        </li>
+      )}
     </ul>
   );
 }
 
 function SearchForm() {
+  const { filterItems } = useContext(Context);
+  const [searchText, setSearchText] = useState(null);
+
+  const handleOnChange = (e) => {
+    setSearchText(e.target.value);
+    filterItems(e.target.value);
+  };
+
+  const handleOnSubmit = (e) => {
+    e.preventDefault();
+    filterItems(searchText);
+  };
+
   return (
-    <form className="d-flex" role="search">
+    <form className="d-flex" role="search" onSubmit={handleOnSubmit}>
       <input
         className="form-control me-2"
         type="search"
         placeholder="Search"
         aria-label="Search"
+        onChange={handleOnChange}
       />
       <button className="btn btn-outline-success" type="submit">
         Search
@@ -29,10 +99,27 @@ function SearchForm() {
 }
 
 function Dropdown() {
+  const { currentUser } = useAuthContext();
+
+  const username = useMemo(() => {
+    return currentUser?.displayName;
+  }, [currentUser]);
+
+  const avatar = useMemo(() => {
+    return !!currentUser ? (
+      <img
+        className="avatar"
+        src={currentUser?.photoURL}
+        alt={currentUser?.displayName}
+        width="34px"
+        height="34px"
+      />
+    ) : (
+      "Login"
+    );
+  }, [currentUser]);
   return (
     <ul className="navbar-nav mb-2 mb-lg-0">
-      {" "}
-      {/* remove ms-auto */}
       <li className="nav-item dropdown">
         <a
           className="nav-link dropdown-toggle"
@@ -42,13 +129,26 @@ function Dropdown() {
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          Login
+          {avatar}
         </a>
-        <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-          <li>
-            <a className="dropdown-item text-center" href="#a">
-              Profile
-            </a>
+        <ul
+          className="dropdown-menu dropdown-menu-end"
+          aria-labelledby="navbarDropdown"
+        >
+          {currentUser && (
+            <>
+              <li className="text-center p-2">
+                <Link to="/profile">{username}</Link>
+              </li>
+              <li>
+                <hr className="dropdown-divider" />
+              </li>
+            </>
+          )}
+
+          <li className="d-flex justify-content-center">
+            <LogIn />
+            <LogOut />
           </li>
         </ul>
       </li>

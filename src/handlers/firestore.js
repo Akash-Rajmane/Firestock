@@ -18,7 +18,7 @@ const Firestore = {
         const snapshots = await getDocs(ref);
 
         snapshots.forEach((doc) => {
-          const d = { ...doc.data() };
+          const d = { ...doc.data(), id: doc.id };
           docs.push(d);
           resolve(docs);
         });
@@ -39,6 +39,8 @@ const Firestore = {
           title: inputs.title,
           path: inputs.path,
           createdAt: serverTimestamp(),
+          username: inputs.username,
+          useremail: inputs.useremail,
         });
         resolve("New doc inserted successfully");
       } catch (e) {

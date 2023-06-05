@@ -1,12 +1,13 @@
 import { useContext, useEffect } from "react";
-import { Context } from "./context";
-import Layout from "./components/Layout";
-import Card from "./components/Card";
+import { Context } from "./context/FirestoreContext";
+import List from "./components/List";
 
 import "./App.css";
+import { useAuthContext } from "./context/AuthContext";
 
 function App() {
   const { state, read } = useContext(Context);
+  const { authenticate } = useAuthContext();
 
   // const count = useMemo(() => {
   //   return `you have ${state.items.length} image${
@@ -19,19 +20,16 @@ function App() {
   }`;
 
   useEffect(() => {
-    read().then(console.log);
+    read();
+    authenticate();
   }, []);
 
   return (
-    <Layout>
+    <>
       <h1 className="text-center">Gallery</h1>
       {count}
-      <div className="row">
-        {state.items.map((item, index) => {
-          return <Card {...item} key={index} />;
-        })}
-      </div>
-    </Layout>
+      <List items={state.items} />
+    </>
   );
 }
 
